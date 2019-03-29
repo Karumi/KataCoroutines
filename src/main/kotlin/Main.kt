@@ -5,18 +5,22 @@ fun next(gameOfLife: GameOfLife): GameOfLife {
 }
 
 fun main() {
-    val gameSize = 5
+    val gameSize = 25
+    val startingCoordinate = gameSize / 2
     var gameOfLife = GameOfLife.square(gameSize)
-        .swap(CellCoordinate(2, 1))
-        .swap(CellCoordinate(3, 1))
-        .swap(CellCoordinate(1, 2))
-        .swap(CellCoordinate(2, 2))
-        .swap(CellCoordinate(2, 3))
+        .swap(CellCoordinate(startingCoordinate + 2, startingCoordinate + 1))
+        .swap(CellCoordinate(startingCoordinate + 3, startingCoordinate + 1))
+        .swap(CellCoordinate(startingCoordinate + 1, startingCoordinate + 2))
+        .swap(CellCoordinate(startingCoordinate + 2, startingCoordinate + 2))
+        .swap(CellCoordinate(startingCoordinate + 2, startingCoordinate + 3))
 
     with(TermColors()) {
-        (0..100).forEach { _ ->
+        print(hideCursor)
+
+        while (true) {
             render(gameOfLife)
             gameOfLife = update(gameOfLife)
+            resetCursor(gameSize)
         }
     }
 }

@@ -16,6 +16,11 @@ fun TermColors.render(gameOfLife: GameOfLife) {
     printFooter(columns)
 }
 
+fun TermColors.resetCursor(gameSize: Int) {
+    print(cursorLeft(gameSize + 2))
+    print(cursorUp(gameSize + 2))
+}
+
 private fun TermColors.printCell(cell: Cell) {
     if (cell) {
         print(red("O"))
