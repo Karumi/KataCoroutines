@@ -44,6 +44,7 @@ private fun TermColors.printFooter(columns: Int) {
     println()
     print(" ")
     (1..columns).forEach { _ -> print(red("¯")) }
+    println()
 }
 
 private fun TermColors.printHeader(columns: Int) {
