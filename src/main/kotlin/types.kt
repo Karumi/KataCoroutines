@@ -3,6 +3,10 @@ import HorizontalDirection.East
 import HorizontalDirection.West
 import VerticalDirection.North
 import VerticalDirection.South
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.concurrent.Executors
 
 typealias Cell = Boolean
 
@@ -32,16 +36,24 @@ data class GameOfLife(
     val cells: List<List<Cell>>
 ) {
     companion object {
+
+        private val dispatcher = Executors.newFixedThreadPool(8).asCoroutineDispatcher()
+
         fun square(size: Int): GameOfLife =
             GameOfLife(cells = (1..size).map { (1..size).map { false } })
 
-        fun build(size: Int, generator: (Int, Int) -> Cell): GameOfLife {
-            val cells = (1..size)
-                .map { column ->
-                    (1..size).map { row -> generator(column - 1, row - 1) }
-                }
+        suspend fun build(size: Int, generator: suspend (Int, Int) -> Cell): GameOfLife = withContext(dispatcher) {
+            val cells = MutableList(size) { MutableList(size) { false } }
 
-            return GameOfLife(cells)
+            for (i in (1..size)) {
+                for (j in (1..size)) {
+                    launch {
+                        cells[i - 1][j - 1] = generator(i - 1, j - 1)
+                    }
+                }
+            }
+
+            GameOfLife(cells)
         }
     }
 

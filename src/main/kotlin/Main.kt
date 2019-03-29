@@ -1,10 +1,8 @@
 import com.github.ajalt.mordant.TermColors
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
-fun next(gameOfLife: GameOfLife): GameOfLife {
-    return gameOfLife
-}
-
-fun main() {
+fun main() = runBlocking {
     val gameSize = 25
     val startingCoordinate = gameSize / 2
     var gameOfLife = GameOfLife.square(gameSize)
@@ -25,11 +23,12 @@ fun main() {
     }
 }
 
-fun update(gameOfLife: GameOfLife): GameOfLife =
+suspend fun update(gameOfLife: GameOfLife): GameOfLife =
     GameOfLife.build(gameOfLife.size.first) { i, j ->
         val numberOfLivingNeighbors = gameOfLife.numberOfLivingNeighbors(CellCoordinate(i, j))
         val currentCell = gameOfLife.cells[i][j]
 
+        delay(1)
         when {
             currentCell && numberOfLivingNeighbors < 2 -> false
             currentCell && numberOfLivingNeighbors in (2..3) -> true
