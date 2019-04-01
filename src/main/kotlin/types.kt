@@ -1,48 +1,35 @@
-import HorizontalDirection.Center
-import HorizontalDirection.East
-import HorizontalDirection.West
-import VerticalDirection.North
-import VerticalDirection.South
-
 typealias Cell = Boolean
 
 data class CellCoordinate(val x: Int, val y: Int)
-data class Direction(val vertical: VerticalDirection, val horizontal: HorizontalDirection) {
-    companion object {
-        val NorthWest: Direction = Direction(North, West)
-        val NorthCenter: Direction = Direction(North, Center)
-        val NorthEast: Direction = Direction(North, East)
-        val CenterWest: Direction = Direction(VerticalDirection.Center, West)
-        val CenterEast: Direction = Direction(VerticalDirection.Center, East)
-        val SouthWest: Direction = Direction(South, West)
-        val SouthCenter: Direction = Direction(South, Center)
-        val SouthEast: Direction = Direction(South, East)
-    }
-}
-
-enum class VerticalDirection {
-    North, Center, South
-}
-
-enum class HorizontalDirection {
-    West, Center, East
+enum class Direction {
+    NorthWest, NorthHCenter, NorthEast,
+    VCenterWest, /*VCenterHCenter, */ VCenterEast,
+    SouthWest, SouthHCenter, SouthEast
 }
 
 data class GameOfLife(
     val cells: List<List<Cell>>
 ) {
     companion object {
-        fun square(size: Int): GameOfLife =
-            GameOfLife(cells = (1..size).map { (1..size).map { false } })
-
         fun build(size: Int, generator: (Int, Int) -> Cell): GameOfLife {
-            val cells = (1..size)
-                .map { column ->
-                    (1..size).map { row -> generator(column - 1, row - 1) }
-                }
+            val cells = (0 until size)
+                .map { column -> (0 until size).map { row -> generator(column, row) } }
 
             return GameOfLife(cells)
         }
+
+        fun rPentomino(gameSize: Int): GameOfLife {
+            val startingCoordinate = gameSize / 2
+            return GameOfLife.square(gameSize)
+                .swap(CellCoordinate(startingCoordinate + 2, startingCoordinate + 1))
+                .swap(CellCoordinate(startingCoordinate + 3, startingCoordinate + 1))
+                .swap(CellCoordinate(startingCoordinate + 1, startingCoordinate + 2))
+                .swap(CellCoordinate(startingCoordinate + 2, startingCoordinate + 2))
+                .swap(CellCoordinate(startingCoordinate + 2, startingCoordinate + 3))
+        }
+
+        private fun square(size: Int): GameOfLife =
+            GameOfLife(cells = (1..size).map { (1..size).map { false } })
     }
 
     val asListOfCells: List<Cell>
@@ -62,34 +49,25 @@ data class GameOfLife(
     fun numberOfLivingNeighbors(coordinate: CellCoordinate): Int =
         listOf(
             neighbor(coordinate, Direction.NorthWest),
-            neighbor(coordinate, Direction.NorthCenter),
+            neighbor(coordinate, Direction.NorthHCenter),
             neighbor(coordinate, Direction.NorthEast),
-            neighbor(coordinate, Direction.CenterWest),
-            neighbor(coordinate, Direction.CenterEast),
+            neighbor(coordinate, Direction.VCenterWest),
+            neighbor(coordinate, Direction.VCenterEast),
             neighbor(coordinate, Direction.SouthWest),
-            neighbor(coordinate, Direction.SouthCenter),
+            neighbor(coordinate, Direction.SouthHCenter),
             neighbor(coordinate, Direction.SouthEast)
         ).fold(0) { acc, cell -> if (cell) acc + 1 else acc }
 
     private fun neighbor(coordinate: CellCoordinate, direction: Direction): Cell {
-        val offset = when {
-            direction.horizontal == West &&
-                    direction.vertical == North -> -1 to -1
-            direction.horizontal == Center &&
-                    direction.vertical == North -> 0 to -1
-            direction.horizontal == East &&
-                    direction.vertical == North -> 1 to -1
-            direction.horizontal == West &&
-                    direction.vertical == VerticalDirection.Center -> -1 to 0
-            direction.horizontal == Center &&
-                    direction.vertical == VerticalDirection.Center -> 0 to 0
-            direction.horizontal == East &&
-                    direction.vertical == VerticalDirection.Center -> 1 to 0
-            direction.horizontal == West &&
-                    direction.vertical == South -> -1 to 1
-            direction.horizontal == Center &&
-                    direction.vertical == South -> 0 to 1
-            else -> 1 to 1
+        val offset = when (direction) {
+            Direction.NorthWest -> -1 to -1
+            Direction.NorthHCenter -> 0 to -1
+            Direction.NorthEast -> 1 to -1
+            Direction.VCenterWest -> -1 to 0
+            Direction.VCenterEast -> 1 to 0
+            Direction.SouthWest -> -1 to 1
+            Direction.SouthHCenter -> 0 to 1
+            Direction.SouthEast -> 1 to 1
         }
 
         return cells
