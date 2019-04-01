@@ -13,8 +13,6 @@ fun main() = runBlocking {
         .swap(CellCoordinate(startingCoordinate + 2, startingCoordinate + 3))
 
     with(TermColors()) {
-        print(hideCursor)
-
         while (true) {
             render(gameOfLife)
             gameOfLife = update(gameOfLife)

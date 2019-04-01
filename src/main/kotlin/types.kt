@@ -47,9 +47,7 @@ data class GameOfLife(
 
             for (i in (1..size)) {
                 for (j in (1..size)) {
-                    launch {
-                        cells[i - 1][j - 1] = generator(i - 1, j - 1)
-                    }
+                    launch { cells[i - 1][j - 1] = generator(i - 1, j - 1) }
                 }
             }
 
