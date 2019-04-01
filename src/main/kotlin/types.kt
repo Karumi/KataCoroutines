@@ -51,7 +51,7 @@ data class GameOfLife(
                 }
             }
 
-            GameOfLife(cells)
+            return@withContext GameOfLife(cells)
         }
     }
 
